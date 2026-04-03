@@ -1,6 +1,15 @@
-# Later
+<div align="center">
+  <img src="extension/icon.svg" width="96" height="96" />
 
-**Capture what matters without losing your focus.**
+  # Later
+
+  **Capture what matters without losing your focus.**
+
+  ![version](https://img.shields.io/badge/version-0.1.0-6c63ff)
+  ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
+</div>
+
+---
 
 Later lets you defer actions mid-conversation without interrupting your current task. Spot a bug to fix, an idea to explore, or a refactor to do? Push it to the queue and come back to it when you're ready — with full context preserved.
 
