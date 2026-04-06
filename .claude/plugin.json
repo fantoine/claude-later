@@ -1,9 +1,0 @@
-{
-  "name": "later",
-  "version": "0.1.0",
-  "description": "Defer actions and tasks without losing your current context. Push anything to a later-queue and pop it when you're ready.",
-  "author": {
-    "name": "Fabien ANTOINE"
-  },
-  "license": "Apache-2.0"
-}

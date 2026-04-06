@@ -5,7 +5,7 @@
 
   **Capture what matters without losing your focus.**
 
-  ![version](https://img.shields.io/badge/version-0.1.0-6c63ff)
+  ![version](https://img.shields.io/badge/version-0.2.0-6c63ff)
   ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
 </div>
 
@@ -21,7 +21,7 @@ You're deep in a refactor when you notice something unrelated.
 **Claude Code:**
 
 ```
-/later Fix the error handling in the auth middleware — it swallows 500s silently
+/later:add Fix the error handling in the auth middleware — it swallows 500s silently
 ```
 
 **Claude Desktop:**
@@ -92,7 +92,7 @@ Download the latest `.mcpb` file from the [Releases page](https://github.com/fan
 **Claude Code:**
 
 ```
-/later <action>
+/later:add <action>
 ```
 
 **Claude Desktop:**
@@ -168,7 +168,7 @@ The queue persists across sessions and is scoped per-project when used inside a 
 
 | Command | Description |
 |---------|-------------|
-| `/later <action>` | Add an action to the queue |
+| `/later:add <action>` | Add an action to the queue |
 | `/later:next` | Retrieve and execute the next action |
 | `/later:pick <ref>` | Pick a specific action by ID or natural language |
 | `/later:list` | Show all pending actions |
