@@ -2,9 +2,9 @@
 description: "Retrieve and process the next action from the later-queue"
 ---
 
-Use the later_pop MCP tool to retrieve the next action from the later-queue.
+Before calling the tool, run `pwd` to get the current working directory.
 
-Always pass the current working directory as the cwd parameter.
+Use the later_pop MCP tool to retrieve the next action from the later-queue, passing the working directory as the cwd parameter.
 
 If the queue is empty, say so.
 

@@ -2,9 +2,9 @@
 description: "Show all actions in the later-queue"
 ---
 
-Use the later_list MCP tool to display all actions currently in the later-queue.
+Before calling the tool, run `pwd` to get the current working directory.
 
-Always pass the current working directory as the cwd parameter.
+Use the later_list MCP tool to display all actions currently in the later-queue, passing the working directory as the cwd parameter.
 
 Present the results clearly. If the queue is empty, say so.
 

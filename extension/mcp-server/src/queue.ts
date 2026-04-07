@@ -23,7 +23,8 @@ function resolveStoragePath(cwd?: string): string {
   if (existsSync(localDir)) {
     return join(localDir, 'later-queue.local.json');
   }
-  return join(homedir(), '.claude', 'later-queue.json');
+  const globalHome = process.env.LATER_HOME_OVERRIDE ?? homedir();
+  return join(globalHome, '.claude', 'later-queue.json');
 }
 
 async function readQueue(storagePath: string): Promise<LaterQueue> {
