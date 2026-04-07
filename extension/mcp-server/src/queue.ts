@@ -20,7 +20,7 @@ export interface LaterQueue {
 function resolveStoragePath(): string {
   const localDir = join(process.cwd(), '.claude');
   if (existsSync(localDir)) {
-    return join(localDir, 'later-queue.json');
+    return join(localDir, 'later-queue.local.json');
   }
   return join(homedir(), '.claude', 'later-queue.json');
 }

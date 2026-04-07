@@ -5,7 +5,7 @@
 
   **Capture what matters without losing your focus.**
 
-  ![version](https://img.shields.io/badge/version-0.2.0-6c63ff)
+  ![version](https://img.shields.io/badge/version-0.2.1-6c63ff)
   ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
 </div>
 
@@ -157,7 +157,7 @@ Later stores the queue in a JSON file. The location depends on the context:
 
 | Context | Storage path |
 |---------|-------------|
-| Claude Code (inside a project with `.claude/`) | `.claude/later-queue.json` in the project root |
+| Claude Code (inside a project with `.claude/`) | `.claude/later-queue.local.json` in the project root |
 | Claude Code (outside a project) or Claude Desktop | `~/.claude/later-queue.json` |
 
 The queue persists across sessions and is scoped per-project when used inside a Claude Code project.
