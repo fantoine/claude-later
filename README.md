@@ -5,7 +5,7 @@
 
   **Capture what matters without losing your focus.**
 
-  ![version](https://img.shields.io/badge/version-0.2.1-6c63ff)
+  ![version](https://img.shields.io/badge/version-0.2.2-6c63ff)
   ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
 </div>
 

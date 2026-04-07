@@ -17,8 +17,9 @@ export interface LaterQueue {
   items: LaterItem[];
 }
 
-function resolveStoragePath(): string {
-  const localDir = join(process.cwd(), '.claude');
+function resolveStoragePath(cwd?: string): string {
+  const dir = cwd ?? process.cwd();
+  const localDir = join(dir, '.claude');
   if (existsSync(localDir)) {
     return join(localDir, 'later-queue.local.json');
   }
@@ -41,8 +42,8 @@ async function writeQueue(storagePath: string, queue: LaterQueue): Promise<void>
   await writeFile(storagePath, JSON.stringify(queue, null, 2), 'utf8');
 }
 
-export async function pushItem(action: string, context?: string, project?: string): Promise<LaterItem> {
-  const storagePath = resolveStoragePath();
+export async function pushItem(action: string, context?: string, project?: string, cwd?: string): Promise<LaterItem> {
+  const storagePath = resolveStoragePath(cwd);
   const queue = await readQueue(storagePath);
 
   const item: LaterItem = {
@@ -50,7 +51,7 @@ export async function pushItem(action: string, context?: string, project?: strin
     action,
     ...(context !== undefined && { context }),
     ...(project !== undefined && { project }),
-    cwd: process.cwd(),
+    cwd: cwd ?? process.cwd(),
     createdAt: new Date().toISOString(),
   };
 
@@ -59,8 +60,8 @@ export async function pushItem(action: string, context?: string, project?: strin
   return item;
 }
 
-export async function popItem(): Promise<LaterItem | null> {
-  const storagePath = resolveStoragePath();
+export async function popItem(cwd?: string): Promise<LaterItem | null> {
+  const storagePath = resolveStoragePath(cwd);
   const queue = await readQueue(storagePath);
 
   if (queue.items.length === 0) {
@@ -73,8 +74,8 @@ export async function popItem(): Promise<LaterItem | null> {
   return item;
 }
 
-export async function listItems(project?: string): Promise<LaterItem[]> {
-  const storagePath = resolveStoragePath();
+export async function listItems(project?: string, cwd?: string): Promise<LaterItem[]> {
+  const storagePath = resolveStoragePath(cwd);
   const queue = await readQueue(storagePath);
 
   if (project !== undefined) {
@@ -83,8 +84,8 @@ export async function listItems(project?: string): Promise<LaterItem[]> {
   return queue.items;
 }
 
-export async function pickItem(id: string): Promise<LaterItem | null> {
-  const storagePath = resolveStoragePath();
+export async function pickItem(id: string, cwd?: string): Promise<LaterItem | null> {
+  const storagePath = resolveStoragePath(cwd);
   const queue = await readQueue(storagePath);
 
   const item = queue.items.find((i) => i.id === id || i.id.startsWith(id));
@@ -95,8 +96,8 @@ export async function pickItem(id: string): Promise<LaterItem | null> {
   return item;
 }
 
-export async function removeItem(id: string): Promise<boolean> {
-  const storagePath = resolveStoragePath();
+export async function removeItem(id: string, cwd?: string): Promise<boolean> {
+  const storagePath = resolveStoragePath(cwd);
   const queue = await readQueue(storagePath);
 
   const before = queue.items.length;

@@ -10,4 +10,6 @@ If no arguments were provided, ask the user what action they want to defer.
 
 If the current conversation has relevant context (current task, file being edited, topic being discussed), include a short summary as the context parameter.
 
+Always pass the current working directory as the cwd parameter.
+
 Confirm to the user that the action has been added, showing the action text and its short ID.

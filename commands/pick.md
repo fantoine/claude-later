@@ -4,7 +4,7 @@ description: "Pick a specific action from the later-queue by ID and execute it"
 
 The argument is: $ARGUMENTS
 
-Start by calling later_list to retrieve all actions currently in the queue.
+Start by calling later_list to retrieve all actions currently in the queue. Always pass the current working directory as the cwd parameter.
 
 Then resolve the target action from the argument:
 - If it looks like an ID (hex string), match it directly against the list.
@@ -12,4 +12,4 @@ Then resolve the target action from the argument:
 - If no argument was provided, show the list and ask the user which action to pick.
 - If the reference is ambiguous or cannot be resolved, show the list and ask for clarification.
 
-Once the target item is identified, call later_pick with its ID to remove it from the queue, then execute the action immediately without asking for confirmation — treat it as if the user had typed it directly.
+Once the target item is identified, call later_pick with its ID and the current working directory as the cwd parameter to remove it from the queue, then execute the action immediately without asking for confirmation — treat it as if the user had typed it directly.

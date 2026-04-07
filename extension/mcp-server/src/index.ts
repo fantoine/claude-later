@@ -19,9 +19,10 @@ server.tool(
     action: z.string().describe('The action or task to defer'),
     context: z.string().optional().describe('Additional context to remember alongside the action'),
     project: z.string().optional().describe('Project or topic identifier (useful for Claude Desktop where cwd is not meaningful)'),
+    cwd: z.string().optional().describe('Current working directory of the Claude Code session'),
   },
-  async ({ action, context, project }) => {
-    const item = await pushItem(action, context, project);
+  async ({ action, context, project, cwd }) => {
+    const item = await pushItem(action, context, project, cwd);
     return {
       content: [
         {
@@ -36,9 +37,11 @@ server.tool(
 server.tool(
   'later_pop',
   'Retrieve and remove the next action from the later-queue (FIFO). Use this when the user is ready to process a deferred action.',
-  {},
-  async () => {
-    const item = await popItem();
+  {
+    cwd: z.string().optional().describe('Current working directory of the Claude Code session'),
+  },
+  async ({ cwd }) => {
+    const item = await popItem(cwd);
     if (!item) {
       return {
         content: [{ type: 'text', text: 'The later-queue is empty.' }],
@@ -60,9 +63,10 @@ server.tool(
   'List all actions currently in the later-queue.',
   {
     project: z.string().optional().describe('Filter by project name'),
+    cwd: z.string().optional().describe('Current working directory of the Claude Code session'),
   },
-  async ({ project }) => {
-    const items = await listItems(project);
+  async ({ project, cwd }) => {
+    const items = await listItems(project, cwd);
     if (items.length === 0) {
       const suffix = project ? ` for project "${project}"` : '';
       return {
@@ -97,9 +101,10 @@ server.tool(
   'Retrieve and remove a specific action from the later-queue by its ID.',
   {
     id: z.string().describe('The ID of the action to pick (full UUID or first 8 characters)'),
+    cwd: z.string().optional().describe('Current working directory of the Claude Code session'),
   },
-  async ({ id }) => {
-    const item = await pickItem(id);
+  async ({ id, cwd }) => {
+    const item = await pickItem(id, cwd);
     if (!item) {
       return {
         content: [{ type: 'text', text: `No action found with id "${id}".` }],
@@ -121,9 +126,10 @@ server.tool(
   'Remove a specific action from the later-queue by its ID.',
   {
     id: z.string().describe('The ID of the action to remove (full UUID or first 8 characters)'),
+    cwd: z.string().optional().describe('Current working directory of the Claude Code session'),
   },
-  async ({ id }) => {
-    const removed = await removeItem(id);
+  async ({ id, cwd }) => {
+    const removed = await removeItem(id, cwd);
     if (!removed) {
       return {
         content: [{ type: 'text', text: `No action found with id "${id}".` }],
