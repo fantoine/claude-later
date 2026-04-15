@@ -1,5 +1,7 @@
 ---
+name: later:next
 description: "Retrieve and process the next action from the later-queue"
+disable-model-invocation: false
 ---
 
 Before calling the tool, run `pwd` to get the current working directory.

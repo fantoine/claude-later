@@ -1,5 +1,7 @@
 ---
+name: later:pick
 description: "Pick a specific action from the later-queue by ID and execute it"
+disable-model-invocation: false
 ---
 
 The argument is: $ARGUMENTS

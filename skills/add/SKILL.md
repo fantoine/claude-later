@@ -1,5 +1,7 @@
 ---
+name: later:add
 description: "Add a deferred action to the later-queue"
+disable-model-invocation: false
 ---
 
 Use the later_push MCP tool to add an action to the later-queue.

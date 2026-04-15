@@ -1,5 +1,7 @@
 ---
+name: later:list
 description: "Show all actions in the later-queue"
+disable-model-invocation: false
 ---
 
 Before calling the tool, run `pwd` to get the current working directory.
