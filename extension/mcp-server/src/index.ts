@@ -3,7 +3,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
-import { pushItem, popItem, listItems, pickItem, removeItem } from './queue.js';
+import { pushItem, popItem, listItems, pickItem, removeItem, clearQueue } from './queue.js';
 
 const VERSION = '0.1.0';
 
@@ -137,6 +137,27 @@ server.tool(
     }
     return {
       content: [{ type: 'text', text: `Action "${id}" removed from the later-queue.` }],
+    };
+  },
+);
+
+server.tool(
+  'later_clear',
+  'Remove all actions from the later-queue at once.',
+  {
+    cwd: z.string().optional().describe('Current working directory of the Claude Code session'),
+  },
+  async ({ cwd }) => {
+    const count = await clearQueue(cwd);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: count === 0
+            ? 'The later-queue was already empty.'
+            : `Cleared ${count} action${count > 1 ? 's' : ''} from the later-queue.`,
+        },
+      ],
     };
   },
 );

@@ -101,13 +101,20 @@ export async function removeItem(id: string, cwd?: string): Promise<boolean> {
   const storagePath = resolveStoragePath(cwd);
   const queue = await readQueue(storagePath);
 
-  const before = queue.items.length;
-  queue.items = queue.items.filter((item) => item.id !== id);
+  const item = queue.items.find((i) => i.id === id || i.id.startsWith(id));
+  if (!item) return false;
 
-  if (queue.items.length === before) {
-    return false;
-  }
-
+  queue.items = queue.items.filter((i) => i.id !== item.id);
   await writeQueue(storagePath, queue);
   return true;
+}
+
+export async function clearQueue(cwd?: string): Promise<number> {
+  const storagePath = resolveStoragePath(cwd);
+  const queue = await readQueue(storagePath);
+
+  const count = queue.items.length;
+  queue.items = [];
+  await writeQueue(storagePath, queue);
+  return count;
 }

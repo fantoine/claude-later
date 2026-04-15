@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { pushItem, popItem, listItems, pickItem, removeItem } from './queue.js';
+import { pushItem, popItem, listItems, pickItem, removeItem, clearQueue } from './queue.js';
 
 let tmpDir: string;
 let projectDir: string;
@@ -130,6 +130,35 @@ describe('removeItem', () => {
   it('removes item and returns true', async () => {
     const item = await pushItem('to remove', undefined, undefined, projectDir);
     expect(await removeItem(item.id, projectDir)).toBe(true);
+    expect(await listItems(undefined, projectDir)).toHaveLength(0);
+  });
+
+  it('removes item by short id (first 8 chars)', async () => {
+    const item = await pushItem('to remove', undefined, undefined, projectDir);
+    expect(await removeItem(item.id.slice(0, 8), projectDir)).toBe(true);
+    expect(await listItems(undefined, projectDir)).toHaveLength(0);
+  });
+
+  it('does not remove other items', async () => {
+    await pushItem('keep me', undefined, undefined, projectDir);
+    const item = await pushItem('remove me', undefined, undefined, projectDir);
+    await removeItem(item.id, projectDir);
+    const remaining = await listItems(undefined, projectDir);
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0].action).toBe('keep me');
+  });
+});
+
+describe('clearQueue', () => {
+  it('returns 0 on empty queue', async () => {
+    expect(await clearQueue(projectDir)).toBe(0);
+  });
+
+  it('removes all items and returns their count', async () => {
+    await pushItem('first', undefined, undefined, projectDir);
+    await pushItem('second', undefined, undefined, projectDir);
+    await pushItem('third', undefined, undefined, projectDir);
+    expect(await clearQueue(projectDir)).toBe(3);
     expect(await listItems(undefined, projectDir)).toHaveLength(0);
   });
 });

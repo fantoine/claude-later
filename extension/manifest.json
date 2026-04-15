@@ -40,6 +40,10 @@
     {
       "name": "later_remove",
       "description": "Remove a specific action from the later-queue by its ID"
+    },
+    {
+      "name": "later_clear",
+      "description": "Remove all actions from the later-queue at once"
     }
   ],
 
