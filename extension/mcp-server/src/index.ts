@@ -162,6 +162,101 @@ server.tool(
   },
 );
 
+// === Prompts — behavioural guidance for Claude Desktop (mirrors Claude Code skills) ===
+
+server.prompt(
+  'later-add',
+  'Add a deferred action to the later-queue',
+  { action: z.string().optional().describe('The action to defer') },
+  ({ action }) => ({
+    messages: [{
+      role: 'user' as const,
+      content: {
+        type: 'text' as const,
+        text: action
+          ? `Add "${action}" to the later-queue using later_push. If there is relevant context from the current conversation (current task, file being edited, topic being discussed), include a short summary as the context parameter. Confirm the action was added with its short ID.`
+          : `Ask me what action I want to defer. Then add it to the later-queue using later_push, including a brief context summary from our current conversation. Confirm with the item's short ID.`,
+      },
+    }],
+  })
+);
+
+server.prompt(
+  'later-list',
+  'Show all actions in the later-queue',
+  async () => ({
+    messages: [{
+      role: 'user' as const,
+      content: {
+        type: 'text' as const,
+        text: `List all actions in the later-queue using later_list. Present the results clearly. If the queue is empty, say so. Then briefly remind me of available commands:\n- /later-add — add an action to the queue\n- /later-next — retrieve and process the next action\n- /later-pick — pick a specific action to execute\n- /later-remove — remove one or more actions without executing them\n- /later-clear — empty the entire queue\n- /later-list — show this list`,
+      },
+    }],
+  })
+);
+
+server.prompt(
+  'later-next',
+  'Retrieve and process the next action from the later-queue',
+  async () => ({
+    messages: [{
+      role: 'user' as const,
+      content: {
+        type: 'text' as const,
+        text: `Retrieve the next action from the later-queue using later_pop. If the queue is empty, say so. Otherwise, execute the action immediately without asking for confirmation — treat it as if I had typed it directly.`,
+      },
+    }],
+  })
+);
+
+server.prompt(
+  'later-pick',
+  'Pick a specific action from the later-queue by ID or position and execute it',
+  { target: z.string().optional().describe('ID or natural language reference (e.g. "the first one", "3rd item")') },
+  ({ target }) => ({
+    messages: [{
+      role: 'user' as const,
+      content: {
+        type: 'text' as const,
+        text: target
+          ? `Pick and execute the later-queue item matching "${target}". First call later_list to get the current items. Resolve the target: if it looks like an ID (hex string), match it directly; if it's a natural language reference (e.g. "first", "3rd", "last"), resolve by position. Then call later_pick with the resolved ID and execute the action immediately without asking for confirmation.`
+          : `Show me the later-queue using later_list, then ask which item I want to pick and execute.`,
+      },
+    }],
+  })
+);
+
+server.prompt(
+  'later-remove',
+  'Remove one or more specific actions from the later-queue without executing them',
+  { target: z.string().optional().describe('ID, position, or natural language reference to items to remove') },
+  ({ target }) => ({
+    messages: [{
+      role: 'user' as const,
+      content: {
+        type: 'text' as const,
+        text: target
+          ? `Remove the later-queue item(s) matching "${target}" without executing them. First call later_list. Resolve the target(s): match by ID, by position (e.g. "first", "items 1 and 3"), or description. Then call later_remove once per item. Confirm which actions were removed.`
+          : `Show me the later-queue using later_list, then ask which item(s) I want to remove.`,
+      },
+    }],
+  })
+);
+
+server.prompt(
+  'later-clear',
+  'Clear all actions from the later-queue at once',
+  async () => ({
+    messages: [{
+      role: 'user' as const,
+      content: {
+        type: 'text' as const,
+        text: `First call later_list to show me how many actions are in the queue. Then ask for my confirmation before proceeding. If I confirm, call later_clear to empty the queue and confirm it has been cleared.`,
+      },
+    }],
+  })
+);
+
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);

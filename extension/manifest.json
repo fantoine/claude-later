@@ -6,7 +6,7 @@
   "display_name": "Later",
   "version": "0.3.0",
   "description": "Defer actions and tasks without losing your current context. Push anything to a later-queue and pop it when you're ready.",
-  "long_description": "Later lets you capture deferred actions mid-conversation without interrupting your current task. Push anything — a refactor to do, a bug to investigate, an idea to explore — and pop it back when you're ready.\n\n**Features**\n- Push actions to a persistent queue with optional context\n- Pop the next action when ready to process it\n- List and remove queued actions\n- Stores locally per-project (`.claude/later-queue.json`) or globally (`~/.claude/later-queue.json`)\n- Works in both Claude Code and Claude Desktop",
+  "long_description": "Later lets you capture deferred actions mid-conversation without interrupting your current task. Push anything — a refactor to do, a bug to investigate, an idea to explore — and pop it back when you're ready.\n\n**Features**\n- Push actions to a persistent queue with optional context\n- Pop the next action when ready to process it\n- Pick a specific action by ID or natural language reference\n- Remove one or more actions without executing them\n- Clear the entire queue at once\n- List queued actions with available command hints\n- Stores locally per-project (`.claude/later-queue.json`) or globally (`~/.claude/later-queue.json`)\n- Works in both Claude Code and Claude Desktop",
 
   "author": {
     "name": "Fabien ANTOINE"
