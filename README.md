@@ -153,7 +153,7 @@ Shows all pending actions with their date and context.
 
 ## 🗂️ Storage
 
-Later stores the queue in a JSON file. The location depends on the context:
+By default, Later stores the queue in a single JSON file. The location depends on the context:
 
 | Context | Storage path |
 |---------|-------------|
@@ -161,6 +161,51 @@ Later stores the queue in a JSON file. The location depends on the context:
 | Claude Code (outside a project) or Claude Desktop | `~/.claude/later-queue.json` |
 
 The queue persists across sessions and is scoped per-project when used inside a Claude Code project.
+
+### Configuring persistence
+
+You can switch to a **markdown-folder** backend, where each deferred action is a standalone `.md` file you can edit by hand.
+
+#### Via environment variable
+
+```bash
+export LATER_STORAGE=markdown
+```
+
+#### Via config file
+
+Create `.claude/later.config.json` in your project (or in `~/.claude/` for a global default):
+
+```json
+{
+  "backend": "markdown",
+  "options": {
+    "dir": ".claude/later"
+  }
+}
+```
+
+Precedence: `LATER_STORAGE` env var → project `.claude/later.config.json` → global `~/.claude/later.config.json` → `json` default.
+
+#### Markdown file format
+
+Each item is one file named `<createdAt>-<seq>-<shortId>.md`:
+
+```markdown
+---
+id: 3f8a1b2c-...
+project: my-app
+cwd: /path/to/proj
+createdAt: 2026-04-20T10:12:00Z
+---
+
+Fix the auth bug
+
+## Context
+noticed during PR review
+```
+
+The body holds the action. An optional `## Context` section carries extra context. Any other sections (e.g. `## Notes`) are preserved on disk but ignored by the queue — use them for free-form annotations.
 
 ## ⚡ Commands reference
 
