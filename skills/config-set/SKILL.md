@@ -1,5 +1,5 @@
 ---
-name: later:config-set
+name: later:config:set
 description: "Set the persistence backend for the later-queue in this project"
 disable-model-invocation: false
 ---
