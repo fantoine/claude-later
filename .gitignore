@@ -7,3 +7,4 @@ icon.png
 *.iml
 .claude/later-queue.local.json
 .claude/settings.local.json
+docs/superpowers/

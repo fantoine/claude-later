@@ -1,29 +1,26 @@
 {
   "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/mcpb/main/schema.json",
   "manifest_version": "0.3",
-
   "name": "later",
   "display_name": "Later",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Defer actions and tasks without losing your current context. Push anything to a later-queue and pop it when you're ready.",
-  "long_description": "Later lets you capture deferred actions mid-conversation without interrupting your current task. Push anything — a refactor to do, a bug to investigate, an idea to explore — and pop it back when you're ready.\n\n**Features**\n- Push actions to a persistent queue with optional context\n- Pop the next action when ready to process it\n- Pick a specific action by ID or natural language reference\n- Remove one or more actions without executing them\n- Clear the entire queue at once\n- List queued actions with available command hints\n- Stores locally per-project (`.claude/later-queue.json`) or globally (`~/.claude/later-queue.json`)\n- Works in both Claude Code and Claude Desktop",
-
+  "long_description": "Later lets you capture deferred actions mid-conversation without interrupting your current task. Push anything — a refactor to do, a bug to investigate, an idea to explore — and pop it back when you're ready.\n\n**Features**\n- Push actions to a persistent queue with optional context\n- Pop the next action when ready to process it\n- Pick a specific action by ID or natural language reference\n- Remove one or more actions without executing them\n- Clear the entire queue at once\n- List queued actions with available command hints\n- Configurable storage backend: JSON (default) or markdown-folder (one file per item). Switch via env var or `.claude/later.config.json`\n- Works in both Claude Code and Claude Desktop",
   "author": {
     "name": "Fabien ANTOINE"
   },
-
   "license": "Apache-2.0",
   "icon": "icon.png",
-
   "server": {
     "type": "node",
     "entry_point": "server/index.js",
     "mcp_config": {
       "command": "node",
-      "args": ["${__dirname}/server/index.js"]
+      "args": [
+        "${__dirname}/server/index.js"
+      ]
     }
   },
-
   "tools": [
     {
       "name": "later_push",
@@ -44,13 +41,29 @@
     {
       "name": "later_clear",
       "description": "Remove all actions from the later-queue at once"
+    },
+    {
+      "name": "later_config_get",
+      "description": "Show the current persistence configuration"
+    },
+    {
+      "name": "later_config_set",
+      "description": "Update the persistence backend configuration"
     }
   ],
-
   "compatibility": {
     "claude_desktop": ">=0.10.0",
-    "platforms": ["darwin", "win32", "linux"]
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ]
   },
-
-  "keywords": ["queue", "defer", "tasks", "productivity", "later"]
+  "keywords": [
+    "queue",
+    "defer",
+    "tasks",
+    "productivity",
+    "later"
+  ]
 }
