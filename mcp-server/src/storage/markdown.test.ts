@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtemp, rm, readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -48,6 +48,30 @@ describe('MarkdownStorage file layout', () => {
     const raw = await readFile(join(dir, files[0]), 'utf8');
     expect(raw).not.toContain('## Context');
     expect(raw.trim().endsWith('plain action')).toBe(true);
+  });
+
+  it('preserves insertion order for pushes within the same millisecond', async () => {
+    const dir = join(tmpDir, 'same-ms');
+    const storage = new MarkdownStorage(dir);
+
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date('2026-04-20T12:00:00.000Z'));
+      await storage.push({ action: 'first', cwd: '/tmp' });
+      await storage.push({ action: 'second', cwd: '/tmp' });
+      await storage.push({ action: 'third', cwd: '/tmp' });
+    } finally {
+      vi.useRealTimers();
+    }
+
+    const list = await storage.list();
+    expect(list.map((i) => i.action)).toEqual(['first', 'second', 'third']);
+
+    const files = (await readdir(dir)).sort();
+    expect(files).toHaveLength(3);
+    expect(files[0]).toContain('-000-');
+    expect(files[1]).toContain('-001-');
+    expect(files[2]).toContain('-002-');
   });
 
   it('parses back an externally-edited file with extra body sections', async () => {

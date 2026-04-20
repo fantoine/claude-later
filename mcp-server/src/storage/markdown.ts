@@ -14,10 +14,10 @@ interface FileRecord {
   item: LaterItem;
 }
 
-function filenameFor(item: LaterItem): string {
+function filenameFor(item: LaterItem, seq: number): string {
   const ts = item.createdAt.replace(/[:.]/g, '-');
-  const seq = String(counter).padStart(3, '0');
-  return `${ts}-${seq}-${item.id.slice(0, 8)}.md`;
+  const seqStr = String(seq).padStart(3, '0');
+  return `${ts}-${seqStr}-${item.id.slice(0, 8)}.md`;
 }
 
 function serialize(item: LaterItem): string {
@@ -104,7 +104,7 @@ export class MarkdownStorage implements LaterStorage {
       createdAt: new Date(now).toISOString(),
       ...input,
     };
-    await this.atomicWrite(join(this.dir, filenameFor(item)), serialize(item));
+    await this.atomicWrite(join(this.dir, filenameFor(item, counter)), serialize(item));
     return item;
   }
 
