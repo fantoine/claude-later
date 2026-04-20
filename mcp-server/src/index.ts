@@ -4,6 +4,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { pushItem, popItem, listItems, pickItem, removeItem, clearQueue } from './queue.js';
+import { loadConfig, writeLocalConfig, writeGlobalConfig, globalHome } from './storage/config.js';
+import { existsSync } from 'node:fs';
+import { join, isAbsolute } from 'node:path';
 
 const VERSION = '0.1.0';
 
@@ -162,6 +165,94 @@ server.tool(
   },
 );
 
+server.tool(
+  'later_config_get',
+  'Show the current persistence configuration for the later-queue.',
+  {
+    cwd: z.string().optional().describe('Current working directory (Claude Code only)'),
+  },
+  async ({ cwd }) => {
+    const effectiveCwd = cwd ?? process.cwd();
+    const cfg = await loadConfig(effectiveCwd);
+
+    // Determine source
+    let source: string;
+    if (process.env.LATER_STORAGE) {
+      source = `env var LATER_STORAGE=${process.env.LATER_STORAGE}`;
+    } else if (cwd && existsSync(join(cwd, '.claude', 'later.config.json'))) {
+      source = `local config (${join(cwd, '.claude', 'later.config.json')})`;
+    } else if (existsSync(join(globalHome(), '.claude', 'later.config.json'))) {
+      source = `global config (${join(globalHome(), '.claude', 'later.config.json')})`;
+    } else {
+      source = 'default';
+    }
+
+    // Compute queue path
+    let queuePath: string;
+    if (cfg.backend === 'json') {
+      const localDir = cwd ? join(cwd, '.claude') : null;
+      queuePath = localDir && existsSync(localDir)
+        ? join(localDir, 'later-queue.local.json')
+        : join(globalHome(), '.claude', 'later-queue.json');
+    } else {
+      const configured = cfg.options?.dir;
+      const localDir = cwd ? join(cwd, '.claude') : null;
+      const base = localDir && existsSync(localDir) ? cwd! : globalHome();
+      if (configured) {
+        queuePath = isAbsolute(configured) ? configured : join(base, configured);
+      } else {
+        queuePath = join(base, '.claude', 'later');
+      }
+    }
+
+    const lines = [
+      `Backend: ${cfg.backend}`,
+      ...(cfg.options?.dir ? [`Dir: ${cfg.options.dir}`] : []),
+      `Source: ${source}`,
+      `Queue path: ${queuePath}`,
+    ];
+
+    return {
+      content: [{ type: 'text', text: `Later configuration:\n\n${lines.join('\n')}` }],
+    };
+  },
+);
+
+server.tool(
+  'later_config_set',
+  'Update the later-queue persistence configuration. When called with a cwd, writes to the project-level config. Otherwise writes to the global config.',
+  {
+    backend: z.enum(['json', 'markdown']).describe('Storage backend to use'),
+    dir: z.string().optional().describe('Custom directory for markdown backend (relative or absolute)'),
+    cwd: z.string().optional().describe('Current working directory — if provided, writes local project config; otherwise writes global config'),
+  },
+  async ({ backend, dir, cwd }) => {
+    const config = {
+      backend,
+      ...(dir !== undefined && { options: { dir } }),
+    };
+
+    let location: string;
+    if (cwd) {
+      await writeLocalConfig(cwd, config);
+      location = join(cwd, '.claude', 'later.config.json');
+    } else {
+      await writeGlobalConfig(config);
+      location = join(globalHome(), '.claude', 'later.config.json');
+    }
+
+    const lines = [
+      `Backend: ${backend}`,
+      ...(dir ? [`Dir: ${dir}`] : []),
+      `Written to: ${location}`,
+    ];
+
+    return {
+      content: [{ type: 'text', text: `Later configuration updated:\n\n${lines.join('\n')}` }],
+    };
+  },
+);
+
 // === Prompts — behavioural guidance for Claude Desktop (mirrors Claude Code skills) ===
 
 server.prompt(
@@ -252,6 +343,40 @@ server.prompt(
       content: {
         type: 'text' as const,
         text: `First call later_list to show me how many actions are in the queue. Then ask for my confirmation before proceeding. If I confirm, call later_clear to empty the queue and confirm it has been cleared.`,
+      },
+    }],
+  })
+);
+
+server.prompt(
+  'later-config',
+  'Show the current persistence configuration for the later-queue',
+  async () => ({
+    messages: [{
+      role: 'user' as const,
+      content: {
+        type: 'text' as const,
+        text: `Call later_config_get to show the current persistence configuration. Present the results clearly: the backend (json or markdown), the source of the configuration (env var / config file / default), and where the queue files are stored.`,
+      },
+    }],
+  })
+);
+
+server.prompt(
+  'later-config-set',
+  'Change the later-queue persistence backend',
+  {
+    backend: z.string().optional().describe('The backend to switch to: "json" or "markdown"'),
+    dir: z.string().optional().describe('Custom directory for the markdown backend'),
+  },
+  ({ backend, dir }) => ({
+    messages: [{
+      role: 'user' as const,
+      content: {
+        type: 'text' as const,
+        text: backend
+          ? `Call later_config_set with backend="${backend}"${dir ? ` and dir="${dir}"` : ''} to update the global persistence configuration. Confirm what was written and where.`
+          : `Ask me which backend I want to use for the later-queue (json or markdown). If I choose markdown, also ask if I want a custom directory. Then call later_config_set with the chosen values. Confirm what was written.`,
       },
     }],
   })
