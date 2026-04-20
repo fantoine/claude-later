@@ -5,13 +5,9 @@ import { randomUUID } from 'node:crypto';
 import matter from 'gray-matter';
 import type { LaterItem, LaterItemInput, LaterStorage } from './types.js';
 
-// Monotonic clock: ensures createdAt is strictly increasing even within the same ms.
+// Monotonic counter: ensures filename ordering preserves insertion order within the same ms.
 let lastTs = 0;
-function monotonicISOString(): string {
-  const now = Date.now();
-  lastTs = now > lastTs ? now : lastTs + 1;
-  return new Date(lastTs).toISOString();
-}
+let counter = 0;
 
 interface FileRecord {
   filename: string;
@@ -20,7 +16,8 @@ interface FileRecord {
 
 function filenameFor(item: LaterItem): string {
   const ts = item.createdAt.replace(/[:.]/g, '-');
-  return `${ts}-${item.id.slice(0, 8)}.md`;
+  const seq = String(counter).padStart(3, '0');
+  return `${ts}-${seq}-${item.id.slice(0, 8)}.md`;
 }
 
 function serialize(item: LaterItem): string {
@@ -81,7 +78,7 @@ export class MarkdownStorage implements LaterStorage {
         return { filename, item };
       }),
     );
-    records.sort((a, b) => a.item.createdAt.localeCompare(b.item.createdAt));
+    records.sort((a, b) => a.filename.localeCompare(b.filename));
     return records;
   }
 
@@ -95,9 +92,16 @@ export class MarkdownStorage implements LaterStorage {
 
   async push(input: LaterItemInput): Promise<LaterItem> {
     await this.ensureDir();
+    const now = Date.now();
+    if (now > lastTs) {
+      lastTs = now;
+      counter = 0;
+    } else {
+      counter++;
+    }
     const item: LaterItem = {
       id: randomUUID(),
-      createdAt: monotonicISOString(),
+      createdAt: new Date(now).toISOString(),
       ...input,
     };
     await this.atomicWrite(join(this.dir, filenameFor(item)), serialize(item));
