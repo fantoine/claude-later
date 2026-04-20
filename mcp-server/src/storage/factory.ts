@@ -1,13 +1,8 @@
 import { existsSync } from 'node:fs';
 import { join, isAbsolute } from 'node:path';
-import { homedir } from 'node:os';
 import { JsonStorage } from './json.js';
-import { loadConfig } from './config.js';
+import { loadConfig, globalHome } from './config.js';
 import type { LaterStorage, StorageConfig } from './types.js';
-
-function globalHome(): string {
-  return process.env.LATER_HOME_OVERRIDE ?? homedir();
-}
 
 function resolveJsonPath(cwd: string): string {
   const localDir = join(cwd, '.claude');
@@ -33,6 +28,10 @@ export async function resolveStorage(cwd: string): Promise<LaterStorage> {
     case 'markdown': {
       const { MarkdownStorage } = await import('./markdown.js');
       return new MarkdownStorage(resolveMarkdownDir(cwd, cfg));
+    }
+    default: {
+      const exhaustive: never = cfg.backend;
+      throw new Error(`Unhandled backend: ${exhaustive}`);
     }
   }
 }

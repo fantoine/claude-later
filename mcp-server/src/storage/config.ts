@@ -20,7 +20,7 @@ async function readConfigFile(path: string): Promise<Partial<StorageConfig> | nu
   return parsed;
 }
 
-function globalHome(): string {
+export function globalHome(): string {
   return process.env.LATER_HOME_OVERRIDE ?? homedir();
 }
 
