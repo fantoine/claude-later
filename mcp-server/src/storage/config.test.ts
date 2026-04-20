@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { loadConfig } from './config.js';
+import { loadConfig, writeLocalConfig, writeGlobalConfig } from './config.js';
 
 let tmpDir: string;
 let projectDir: string;
@@ -79,6 +79,22 @@ describe('loadConfig', () => {
       JSON.stringify({ backend: 'markdown', options: { dir: 'custom/later' } }),
     );
     const cfg = await loadConfig(projectDir);
+    expect(cfg.options?.dir).toBe('custom/later');
+  });
+});
+
+describe('writeLocalConfig / writeGlobalConfig', () => {
+  it('writeLocalConfig creates .claude/later.config.json in the project', async () => {
+    await writeLocalConfig(projectDir, { backend: 'markdown' });
+    const cfg = await loadConfig(projectDir);
+    expect(cfg.backend).toBe('markdown');
+  });
+
+  it('writeGlobalConfig creates ~/.claude/later.config.json', async () => {
+    await writeGlobalConfig({ backend: 'markdown', options: { dir: 'custom/later' } });
+    delete process.env.LATER_STORAGE; // make sure env doesn't override
+    const cfg = await loadConfig(join(tmpDir, 'no-local')); // no local config here
+    expect(cfg.backend).toBe('markdown');
     expect(cfg.options?.dir).toBe('custom/later');
   });
 });

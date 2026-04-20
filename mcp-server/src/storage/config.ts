@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import type { StorageBackend, StorageConfig } from './types.js';
@@ -22,6 +22,26 @@ async function readConfigFile(path: string): Promise<Partial<StorageConfig> | nu
 
 export function globalHome(): string {
   return process.env.LATER_HOME_OVERRIDE ?? homedir();
+}
+
+export async function writeLocalConfig(cwd: string, config: StorageConfig): Promise<void> {
+  const dir = join(cwd, '.claude');
+  await mkdir(dir, { recursive: true });
+  const data: Record<string, unknown> = { backend: config.backend };
+  if (config.options !== undefined) {
+    data.options = config.options;
+  }
+  await writeFile(join(dir, 'later.config.json'), JSON.stringify(data, null, 2), 'utf8');
+}
+
+export async function writeGlobalConfig(config: StorageConfig): Promise<void> {
+  const dir = join(globalHome(), '.claude');
+  await mkdir(dir, { recursive: true });
+  const data: Record<string, unknown> = { backend: config.backend };
+  if (config.options !== undefined) {
+    data.options = config.options;
+  }
+  await writeFile(join(dir, 'later.config.json'), JSON.stringify(data, null, 2), 'utf8');
 }
 
 export async function loadConfig(cwd: string): Promise<StorageConfig> {
