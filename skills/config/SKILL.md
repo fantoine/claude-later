@@ -11,4 +11,4 @@ Present the result clearly:
 - Where the config comes from (env var / local project config / global config / default)
 - Where queue files are stored on disk
 
-If the backend is the default json and no config file exists, also tell the user they can change it with /later:config:set.
+If the backend is the default json and no config file exists, also tell the user they can change it with /later:config-set.
